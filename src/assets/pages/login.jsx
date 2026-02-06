@@ -48,7 +48,7 @@ function login() {
             />
           </div>
         </div>
-        <button className="w-full mt-8 bg-gradient-to-r from-[#0dc0e0] to-[#0a9db8] text-white font-bold py-3 rounded-lg hover:from-[#0bb0ce] hover:to-[#088da8] transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
+        <button className="w-full mt-8 bg-linear-to-r from-[#0dc0e0] to-[#0a9db8] text-white font-bold py-3 rounded-lg hover:from-[#0bb0ce] hover:to-[#088da8] transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105">
           Iniciar Sesión
         </button>
       </div>
