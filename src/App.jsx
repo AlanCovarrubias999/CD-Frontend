@@ -1,8 +1,13 @@
-import React from 'react'
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import Login from './assets/pages/login.jsx'
 
 function App() {
   return (
-    <div>App de consultorio dental</div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
