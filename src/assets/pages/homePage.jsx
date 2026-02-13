@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import logo from "../images/AyK.png";
+import cookie from "js-cookie";
 
 function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+  const username = user?.user;
+  console.log("Usernameaaaaaaa en HomePage:", username);
+
 
   const menuItems = [
     {
@@ -195,7 +195,7 @@ function HomePage() {
         {/* Logout Button */}
         <div className="p-3 border-t border-cyan-400">
           <button
-            onClick={handleLogout}
+            onClick={logout}
             className="w-full flex items-center px-4 py-3 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-200 group"
           >
             <svg
@@ -246,11 +246,11 @@ function HomePage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-600 font-medium">
-                Bienvenido, {user?.username}
+                Bienvenido, {username || user.username}
               </span>
               <div className="w-10 h-10 bg-[#0dc0e0] rounded-full flex items-center justify-center">
                 <span className="text-white font-bold">
-                  {user?.username?.charAt(0).toUpperCase()}
+                  {user?.username?.charAt(0).toUpperCase() || username.charAt(0).toUpperCase()}
                 </span>
               </div>
             </div>

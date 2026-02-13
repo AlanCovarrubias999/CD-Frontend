@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 function login() {
   const { register, handleSubmit } = useForm();
-  const { iniciarSesion, isAunthenticated } = useAuth();
+  const { iniciarSesion, isAunthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,8 +15,8 @@ function login() {
     }
   }, [isAunthenticated]);
 
-  const onSubmit = async (data) => {
-    iniciarSesion(data);
+  const onLogin = async (data) => {
+     iniciarSesion(data);
   };
 
   return (
@@ -104,7 +104,7 @@ function login() {
               </div>
               <button
                 className="cursor-pointer w-full mt-8 bg-[#0dc0e0] text-white font-bold py-3 rounded-lg  transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-                onClick={handleSubmit(onSubmit)}
+                onClick={handleSubmit(onLogin)}
               >
                 Iniciar Sesión
               </button>
