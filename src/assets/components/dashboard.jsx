@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { getPatientsRequest } from "../../api/patients";
+import { useAuth } from "../../context/AuthContext";
 
 function Dashboard() {
+
+  const { user } = useAuth();
+
   const [stats, setStats] = useState({
     totalPatients: 0,
     pendingAppointments: 0,
@@ -52,7 +56,7 @@ function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Welcome Section */}
       <div className="bg-linear-to-r from-[#0dc0e0] to-cyan-500 rounded-lg shadow-lg p-8 text-white">
-        <h2 className="text-3xl font-bold mb-2">Bienvenido de vuelta 👋</h2>
+        <h2 className="text-3xl font-bold mb-2">Bienvenido de vuelta, {user?.user}</h2>
         <p className="text-cyan-100">
           Aquí puedes ver un resumen de tu consultorio
         </p>

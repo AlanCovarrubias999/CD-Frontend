@@ -39,6 +39,9 @@ function Pacientes() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  console.log("Formulario:", form);
+  console.log("Pacientes cargados:", patients);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
