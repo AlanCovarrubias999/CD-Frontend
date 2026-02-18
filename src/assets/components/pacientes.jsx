@@ -5,17 +5,36 @@ import {
   deletePatientRequest,
   updatePatientRequest,
 } from "../../api/patients";
+import AddPatientModal from "../modals/addPatient";
+
+// svg icon components used in action buttons
+const EyeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+const PencilIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18.5 2.5l3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10 11v6m4-6v6" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 7V4h6v3" />
+  </svg>
+);
 
 function Pacientes() {
-  const [form, setForm] = useState({
-    name: "",
-    age: "",
-    gender: "",
-    phone_number: "",
-  });
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // controls modal visibility and the patient being edited (null for new)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalPatient, setModalPatient] = useState(null);
 
   const fetchPatients = async () => {
     try {
@@ -34,123 +53,71 @@ function Pacientes() {
     fetchPatients();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  // modal form state handled inside AddPatientModal
 
-  console.log("Formulario:", form);
   console.log("Pacientes cargados:", patients);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // submission will be handled by the modal via this callback
+  const handleModalSubmit = async (data) => {
     try {
-      await createPatientRequest({
-        name: form.name,
-        age: parseInt(form.age, 10) || 0,
-        gender: form.gender,
-        phone_number: form.phone_number,
-      });
-      setForm({ name: "", age: "", gender: "", phone_number: "" });
+      if (modalPatient && modalPatient._id) {
+        await updatePatientRequest(modalPatient._id, data);
+      } else {
+        await createPatientRequest(data);
+      }
       fetchPatients();
     } catch (err) {
-      console.error("Error creando paciente", err);
-      setError("No se pudo crear el paciente");
+      console.error("Error guardando paciente desde modal", err);
+      setError("No se pudo guardar el paciente");
+    }
+  };
+
+  const handleView = (patient) => {
+    alert(`Paciente:\nNombre: ${patient.name}\nEdad: ${patient.age}\nGénero: ${patient.gender}\nTeléfono: ${patient.phone_number}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Estás seguro de eliminar este paciente?")) return;
+    try {
+      await deletePatientRequest(id);
+      fetchPatients();
+    } catch (err) {
+      console.error("Error eliminando paciente", err);
+      setError("No se pudo eliminar el paciente");
     }
   };
 
   return (
     <div className="p-6 space-y-6">
       {/* Header Section */}
-      <div className="bg-linear-to-r from-[#0dc0e0] to-cyan-500 rounded-lg shadow-lg p-8 text-white">
-        <h2 className="text-3xl font-bold mb-2">Registrar Paciente 👤</h2>
+      <div className="bg-linear-to-r from-[#0dc0e0] to-cyan-500 rounded-lg shadow-lg p-8 text-white ">
+        <h2 className="text-3xl font-bold mb-2">Administra tus pacientes 👤</h2>
         <p className="text-cyan-100">Agregue nuevos pacientes a la base de datos</p>
+        <button
+          onClick={fetchPatients}
+          className="mt-4 bg-white text-[#0dc0e0] font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-400 hover:text-white transition duration-200"
+        >
+          🔄 Refrescar lista
+        </button>
+        <button
+          onClick={() => {
+            setModalPatient(null);
+            setIsModalOpen(true);
+          }}
+          className="mt-4 ml-2 bg-white text-[#0dc0e0] font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-400 hover:text-white transition duration-200 "
+        >
+          ➕ Agregar paciente
+        </button>
       </div>
 
-      {/* Form Section */}
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6">Datos del paciente</h3>
-        {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
-            <p className="font-semibold">{error}</p>
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Nombre completo
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              placeholder="Ej: Juan González"
-              className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:border-[#0dc0e0] transition"
-            />
-          </div>
+      {/* Modal para agregar a los pacientes: */}
+      <AddPatientModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialData={modalPatient}
+        onSubmit={handleModalSubmit}
+      />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Edad
-              </label>
-              <input
-                type="number"
-                name="age"
-                value={form.age}
-                onChange={handleChange}
-                required
-                placeholder="Ej: 35"
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:border-[#0dc0e0] transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Género
-              </label>
-              <select
-                name="gender"
-                value={form.gender}
-                onChange={handleChange}
-                required
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:border-[#0dc0e0] transition"
-              >
-                <option value="">-- Seleccione --</option>
-                <option value="male">Masculino</option>
-                <option value="female">Femenino</option>
-                <option value="other">Otro</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Teléfono
-              </label>
-              <input
-                type="text"
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleChange}
-                required
-                placeholder="Ej: +1234567890"
-                className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:border-[#0dc0e0] transition"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#0dc0e0] hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
-          >
-            ✓ Guardar Paciente
-          </button>
-        </form>
-      </div>
-
-      {/* Patients List Section */}
       <div className="bg-white rounded-lg shadow-md p-8">
         <h3 className="text-2xl font-bold text-gray-800 mb-6">
           Lista de pacientes ({patients.length})
@@ -181,6 +148,9 @@ function Pacientes() {
                   <th className="px-4 py-4 text-left font-bold text-gray-800">
                     Teléfono
                   </th>
+                  <th className="px-4 py-4 text-left font-bold text-gray-800">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -203,6 +173,32 @@ function Pacientes() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-gray-700">{p.phone_number}</td>
+                  <td className="px-4 py-4 space-x-2">
+                    <button
+                      onClick={() => handleView(p)}
+                      className="text-blue-600 bg-cyan-400 hover:cursor-pointer rounded"
+                      title="Consultar"
+                    >
+                      <EyeIcon />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setModalPatient(p);
+                        setIsModalOpen(true);
+                      }}
+                      className="text-yellow-600 bg-yellow-400 hover:cursor-pointer rounded"
+                      title="Editar"
+                    >
+                      <PencilIcon />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="text-red-600 bg-red-400 hover:cursor-pointer rounded"
+                      title="Eliminar"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </td>
                   </tr>
                 ))}
               </tbody>
