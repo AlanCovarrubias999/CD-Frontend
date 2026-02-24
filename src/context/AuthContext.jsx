@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const iniciarSesion = async (user) => {
     try {
       const res = await loginRequest(user);
-      console.log("Esto es data hola" ,res.data);
+      // console.log("Esto es data hola" ,res.data);
       setUser(res.data);
       setIsAuthenticated(true);
     } catch (error) {
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     async function checkLogin() {
 
       const cookies = Cookies.get();
-      console.log("Cookies actuales:", cookies);
+      // console.log("Cookies actuales:", cookies);
 
       if (!cookies.token){
         setIsAuthenticated(false);

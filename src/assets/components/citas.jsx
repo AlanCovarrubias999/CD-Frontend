@@ -73,7 +73,7 @@ function Citas() {
   const handleSubmit = (e) => {
     e.preventDefault();
     createAppointment(form);
-    console.log("Agendar cita", form);
+    // console.log("Agendar cita", form);
     setForm({ patient: "", date: "", time: "", notes: "" });
     fetchAppointments();
   };
@@ -176,11 +176,25 @@ function Citas() {
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
+                    {/* Nombre del paciente */}
                     <p className="font-bold text-gray-800">{appt.patient?.name || appt.patient || "Paciente"}</p>
+                    {/* Notas de la cita */}
                     <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
                   </div>
-                  <span className="bg-[#0dc0e0] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    {appt.status || "Pendiente"}
+                  {/* status badge with color depending on state */}
+                  <span
+                    className={
+                      "text-white text-xs font-semibold px-3 py-1 rounded-full " +
+                      (appt.status === "completed" || appt.status === "Completed"
+                        ? "bg-green-500"
+                        : appt.status === "pending" || appt.status === "Pending"
+                        ? "bg-yellow-500"
+                        : "bg-[#0dc0e0]")
+                    }
+                  >
+                    {appt.status === "completed" || appt.status === "Completed" ?
+                      "Completada" : appt.status === "pending" || appt.status === "Pending" ?
+                      "Pendiente" : appt.status || "Pendiente"}
                   </span>
                 </div>
                 <div className="flex gap-6 text-sm text-gray-600">

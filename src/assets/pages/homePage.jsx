@@ -13,8 +13,6 @@ function HomePage() {
   const [menuOpen, setMenuOpen] = useState(1);
 
   const username = user?.user;
-  console.log("Usuario actual:", username);
-  console.log("Menu abierto:", menuOpen);
 
   const menuItems = [
     {
@@ -91,8 +89,8 @@ function HomePage() {
 
   const handleMenuItemClick = (item) => {
     setMenuOpen(item);
-    console.log("Menu item clicked:", item.id);
-    console.log("Menu item label:", item.label);
+    // console.log("Menu item clicked:", item.id);
+    // console.log("Menu item label:", item.label);
   };
 
   return (

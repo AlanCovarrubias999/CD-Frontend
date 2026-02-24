@@ -30,14 +30,14 @@ function login() {
           <p className="text-lg mb-2">
             Organiza citas, historial y tratamientos
           </p>
-          <p className="text-lg mb-2">Controla historias clínicas y pagos</p>
+          <p className="text-lg mb-2">Controla historias clínicas de pacientes</p>
           <p className="text-lg">Mejora la atención y fideliza pacientes</p>
         </div>
       </div>
 
       {/* Lado Derecho - Blanco */}
       <div className="flex-2 bg-white flex flex-col items-center p-10">
-        <img src={logo} alt="Logo A&K" className="w-32 h-auto mb-[10%]" />
+        <img src={logo} alt="Logo A&K" className="w-32 h-auto mb-[8%]" />
 
         {/* Contenido abajo del logo */}
         <div className="text-center">

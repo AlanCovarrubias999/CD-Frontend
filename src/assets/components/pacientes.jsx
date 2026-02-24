@@ -53,11 +53,9 @@ function Pacientes() {
     fetchPatients();
   }, []);
 
-  // modal form state handled inside AddPatientModal
 
-  console.log("Pacientes cargados:", patients);
+  // console.log("Pacientes cargados:", patients);
 
-  // submission will be handled by the modal via this callback
   const handleModalSubmit = async (data) => {
     try {
       if (modalPatient && modalPatient._id) {

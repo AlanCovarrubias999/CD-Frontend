@@ -1,63 +1,52 @@
 import { useState, useEffect } from "react";
 import { getPatientsRequest } from "../../api/patients";
 import { useAuth } from "../../context/AuthContext";
-import { 
-  createAppointmentRequest, 
-  deleteAppointmentRequest, 
-  getAppointmentsRequest, 
-  updateAppointmentRequest 
+import {
+  createAppointmentRequest,
+  deleteAppointmentRequest,
+  getAppointmentsRequest,
+  updateAppointmentRequest
 } from "../../api/appointments";
 
 function Dashboard() {
   const [appointments, setAppointments] = useState([]);
-  const { user } = useAuth();
 
-  const [stats, setStats] = useState({
-    totalPatients: 0,
-    pendingAppointments: 0,
-    completedAppointments: 0,
-    appointmentsThisWeek: 0,
-  });
+  const [patients, setPatients] = useState([]);
+
   const [loading, setLoading] = useState(false);
 
-    const fetchAppointments = async () => {
-      try {
-        const res = await getAppointmentsRequest();
-        let data = res.data;
-        if (!Array.isArray(data)) {
-          if (data && data.appointments && Array.isArray(data.appointments)) {
-            data = data.appointments;
-          } else {
-            data = [];
-          }
+  const { user } = useAuth();
+
+  const fetchAppointments = async () => {
+    try {
+      const res = await getAppointmentsRequest();
+      let data = res.data;
+      if (!Array.isArray(data)) {
+        if (data && data.appointments && Array.isArray(data.appointments)) {
+          data = data.appointments;
+        } else {
+          data = [];
         }
-        setAppointments(data);
-      } catch (e) {
-        console.error("Error cargando citas", e);
-        setAppointments([]);
       }
-    };
+      setAppointments(data);
+    } catch (e) {
+      console.error("Error cargando citas", e);
+      setAppointments([]);
+    }
+  };
+  const fetchStats = async () => {
+    try {
+      const res = await getPatientsRequest();
+      const patients = res.data || [];
+      setPatients(patients);
+    } catch (error) {
+      console.error("Error cargando estadísticas", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    console.log(user);
-    const fetchStats = async () => {
-      try {
-        const res = await getPatientsRequest();
-        const patients = res.data || [];
-        
-        // Simulación de datos para demo
-        setStats({
-          totalPatients: patients.length,
-          pendingAppointments: 5,
-          completedAppointments: 12,
-          appointmentsThisWeek: 3,
-        });
-      } catch (error) {
-        console.error("Error cargando estadísticas", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAppointments();
     fetchStats();
   }, []);
@@ -87,34 +76,27 @@ function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard
           title="Pacientes totales"
-          value={stats.totalPatients}
+          value={patients.length}
           icon="👥"
           bgColor="bg-blue-500"
           textColor="text-blue-300"
         />
         <StatCard
           title="Citas pendientes"
-          value={stats.pendingAppointments}
+          value={appointments.filter(appt => appt.status === "pending").length}
           icon="📅"
           bgColor="bg-orange-500"
           textColor="text-orange-300"
         />
         <StatCard
           title="Citas completadas"
-          value={stats.completedAppointments}
+          value={appointments.filter(appt => appt.status === "completed").length}
           icon="✓"
           bgColor="bg-green-500"
           textColor="text-green-300"
-        />
-        <StatCard
-          title="Esta semana"
-          value={stats.appointmentsThisWeek}
-          icon="📊"
-          bgColor="bg-purple-500"
-          textColor="text-purple-300"
         />
       </div>
 
@@ -122,34 +104,46 @@ function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Próximas Citas */}
         <div className="bg-white rounded-lg shadow-md p-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6">Próximas citas</h3>
-        <div className="space-y-4">
-          {appointments.length === 0 ? (
-            <p className="text-gray-500">No hay citas registradas.</p>
-          ) : (
-            appointments.map((appt) => (
-              <div
-                key={appt._id}
-                className="border-l-4 border-[#0dc0e0] bg-linear-to-r from-cyan-50 to-white p-4 rounded-lg hover:shadow-md transition"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-bold text-gray-800">{appt.patient?.name || appt.patient || "Paciente"}</p>
-                    <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
+          <h3 className="text-2xl font-bold text-gray-800 mb-6">Próximas citas</h3>
+          <div className="space-y-4">
+            {appointments.length === 0 ? (
+              <p className="text-gray-500">No hay citas registradas.</p>
+            ) : (
+              appointments.map((appt) => (
+                <div
+                  key={appt._id}
+                  className="border-l-4 border-[#0dc0e0] bg-linear-to-r from-cyan-50 to-white p-4 rounded-lg hover:shadow-md transition"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-bold text-gray-800">{appt.patient?.name || appt.patient || "Paciente"}</p>
+                      <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
+                    </div>
+                    {/* status badge with color and spanish text */}
+                    <span
+                      className={
+                        "text-white text-xs font-semibold px-3 py-1 rounded-full " +
+                        (appt.status === "completed" || appt.status === "Completed"
+                          ? "bg-green-500"
+                          : appt.status === "pending" || appt.status === "Pending"
+                          ? "bg-yellow-500"
+                          : "bg-[#0dc0e0]")
+                      }
+                    >
+                      {appt.status === "completed" || appt.status === "Completed" ?
+                        "Completada" : appt.status === "pending" || appt.status === "Pending" ?
+                        "Pendiente" : appt.status || "Pendiente"}
+                    </span>
                   </div>
-                  <span className="bg-[#0dc0e0] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    {appt.status || "Pendiente"}
-                  </span>
+                  <div className="flex gap-6 text-sm text-gray-600">
+                    <span>📅 {new Date(appt.date).toLocaleDateString()}</span>
+                    <span>🕐 {appt.time}</span>
+                  </div>
                 </div>
-                <div className="flex gap-6 text-sm text-gray-600">
-                  <span>📅 {new Date(appt.date).toLocaleDateString()}</span>
-                  <span>🕐 {appt.time}</span>
-                </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
-      </div>
 
         {/* Actividad Reciente */}
         <div className="bg-white rounded-lg shadow-md p-6">
