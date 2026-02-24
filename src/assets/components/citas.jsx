@@ -1,26 +1,69 @@
 import { useState, useEffect } from "react";
 import { getPatientsRequest } from "../../api/patients";
+import { 
+  createAppointmentRequest, 
+  deleteAppointmentRequest, 
+  getAppointmentsRequest, 
+  updateAppointmentRequest 
+} from "../../api/appointments";
 
 function Citas() {
+  const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [form, setForm] = useState({
-    patientId: "",
+    patient: "",
     date: "",
     time: "",
     notes: "",
   });
 
-  useEffect(() => {
-    const fetch = async () => {
+  const fetchAppointments = async () => {
       try {
-        const res = await getPatientsRequest();
-        setPatients(res.data || []);
+        const res = await getAppointmentsRequest();
+        let data = res.data;
+        if (!Array.isArray(data)) {
+          if (data && data.appointments && Array.isArray(data.appointments)) {
+            data = data.appointments;
+          } else {
+            data = [];
+          }
+        }
+        setAppointments(data);
       } catch (e) {
-        console.error("Error cargando pacientes", e);
+        console.error("Error cargando citas", e);
+        setAppointments([]);
       }
     };
-    fetch();
+    const fetchPatients = async () => {
+      try {
+        const res = await getPatientsRequest();
+        let data = res.data;
+        if (!Array.isArray(data)) {
+          if (data && data.patients && Array.isArray(data.patients)) {
+            data = data.patients;
+          } else {
+            data = [];
+          }
+        }
+        setPatients(data);
+      } catch (e) {
+        console.error("Error cargando pacientes", e);
+        setPatients([]);
+      }
+    };
+
+  useEffect(() => {
+    fetchAppointments();
+    fetchPatients();
   }, []);
+  const createAppointment = async (appointment) => {
+      try {
+        await createAppointmentRequest(appointment);
+        fetchAppointments();
+      } catch (e) {
+        console.error("Error creando cita", e);
+      }
+    };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,9 +72,10 @@ function Citas() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // aquí se enviaría el formulario al servidor
+    createAppointment(form);
     console.log("Agendar cita", form);
-    setForm({ patientId: "", date: "", time: "", notes: "" });
+    setForm({ patient: "", date: "", time: "", notes: "" });
+    fetchAppointments();
   };
 
   return (
@@ -51,15 +95,15 @@ function Citas() {
               Seleccionar Paciente
             </label>
             <select
-              name="patientId"
-              value={form.patientId}
+              name="patient"
+              value={form.patient}
               onChange={handleChange}
               required
               className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:border-[#0dc0e0] transition"
             >
               <option value="">-- Elige un paciente --</option>
               {patients.map((p) => (
-                <option key={p._id} value={p._id}>
+                <option key={p._id} value={p.name}>
                   {p.name}
                 </option>
               ))}
@@ -122,45 +166,30 @@ function Citas() {
       <div className="bg-white rounded-lg shadow-md p-8">
         <h3 className="text-2xl font-bold text-gray-800 mb-6">Citas próximas</h3>
         <div className="space-y-4">
-          {[
-            {
-              patient: "Juan García",
-              date: "2026-02-14",
-              time: "14:30",
-              notes: "Limpieza dental",
-            },
-            {
-              patient: "María López",
-              date: "2026-02-15",
-              time: "10:00",
-              notes: "Consulta inicial",
-            },
-            {
-              patient: "Carlos Pérez",
-              date: "2026-02-16",
-              time: "15:00",
-              notes: "Tratamiento de caries",
-            },
-          ].map((appt, idx) => (
-            <div
-              key={idx}
-              className="border-l-4 border-[#0dc0e0] bg-linear-to-r from-cyan-50 to-white p-4 rounded-lg hover:shadow-md transition"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-bold text-gray-800">{appt.patient}</p>
-                  <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
+          {appointments.length === 0 ? (
+            <p className="text-gray-500">No hay citas registradas.</p>
+          ) : (
+            appointments.map((appt) => (
+              <div
+                key={appt._id}
+                className="border-l-4 border-[#0dc0e0] bg-linear-to-r from-cyan-50 to-white p-4 rounded-lg hover:shadow-md transition"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-bold text-gray-800">{appt.patient?.name || appt.patient || "Paciente"}</p>
+                    <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
+                  </div>
+                  <span className="bg-[#0dc0e0] text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    {appt.status || "Pendiente"}
+                  </span>
                 </div>
-                <span className="bg-[#0dc0e0] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  Pendiente
-                </span>
+                <div className="flex gap-6 text-sm text-gray-600">
+                  <span>📅 {new Date(appt.date).toLocaleDateString()}</span>
+                  <span>🕐 {appt.time}</span>
+                </div>
               </div>
-              <div className="flex gap-6 text-sm text-gray-600">
-                <span>📅 {appt.date}</span>
-                <span>🕐 {appt.time}</span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

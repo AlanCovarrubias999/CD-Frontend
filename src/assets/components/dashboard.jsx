@@ -15,9 +15,9 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log(user);
     const fetchStats = async () => {
       try {
-        setLoading(true);
         const res = await getPatientsRequest();
         const patients = res.data || [];
         
@@ -56,7 +56,7 @@ function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Welcome Section */}
       <div className="bg-linear-to-r from-[#0dc0e0] to-cyan-500 rounded-lg shadow-lg p-8 text-white">
-        <h2 className="text-3xl font-bold mb-2">Bienvenido de vuelta, {user?.user}</h2>
+        <h2 className="text-3xl font-bold mb-2">Bienvenido de vuelta.</h2>
         <p className="text-cyan-100">
           Aquí puedes ver un resumen de tu consultorio
         </p>
