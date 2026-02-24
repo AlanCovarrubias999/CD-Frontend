@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import { getPatientsRequest } from "../../api/patients";
 import { useAuth } from "../../context/AuthContext";
+import { 
+  createAppointmentRequest, 
+  deleteAppointmentRequest, 
+  getAppointmentsRequest, 
+  updateAppointmentRequest 
+} from "../../api/appointments";
 
 function Dashboard() {
-
+  const [appointments, setAppointments] = useState([]);
   const { user } = useAuth();
 
   const [stats, setStats] = useState({
@@ -13,6 +19,24 @@ function Dashboard() {
     appointmentsThisWeek: 0,
   });
   const [loading, setLoading] = useState(false);
+
+    const fetchAppointments = async () => {
+      try {
+        const res = await getAppointmentsRequest();
+        let data = res.data;
+        if (!Array.isArray(data)) {
+          if (data && data.appointments && Array.isArray(data.appointments)) {
+            data = data.appointments;
+          } else {
+            data = [];
+          }
+        }
+        setAppointments(data);
+      } catch (e) {
+        console.error("Error cargando citas", e);
+        setAppointments([]);
+      }
+    };
 
   useEffect(() => {
     console.log(user);
@@ -34,7 +58,7 @@ function Dashboard() {
         setLoading(false);
       }
     };
-
+    fetchAppointments();
     fetchStats();
   }, []);
 
@@ -97,35 +121,35 @@ function Dashboard() {
       {/* Charts/Tables Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Próximas Citas */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Próximas Citas</h3>
-          <div className="space-y-3">
-            {[
-              { patient: "Juan García", date: "Hoy 14:30", status: "Confirmado" },
-              { patient: "María López", date: "Mañana 10:00", status: "Pendiente" },
-              { patient: "Carlos Pérez", date: "Viernes 15:00", status: "Confirmado" },
-            ].map((appt, idx) => (
+        <div className="bg-white rounded-lg shadow-md p-8">
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">Próximas citas</h3>
+        <div className="space-y-4">
+          {appointments.length === 0 ? (
+            <p className="text-gray-500">No hay citas registradas.</p>
+          ) : (
+            appointments.map((appt) => (
               <div
-                key={idx}
-                className="border-l-4 border-[#0dc0e0] bg-gray-50 p-3 rounded"
+                key={appt._id}
+                className="border-l-4 border-[#0dc0e0] bg-linear-to-r from-cyan-50 to-white p-4 rounded-lg hover:shadow-md transition"
               >
-                <p className="font-medium text-gray-800">{appt.patient}</p>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-sm text-gray-600">{appt.date}</span>
-                  <span
-                    className={`text-xs font-semibold px-2 py-1 rounded ${
-                      appt.status === "Confirmado"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {appt.status}
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-bold text-gray-800">{appt.patient?.name || appt.patient || "Paciente"}</p>
+                    <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
+                  </div>
+                  <span className="bg-[#0dc0e0] text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    {appt.status || "Pendiente"}
                   </span>
                 </div>
+                <div className="flex gap-6 text-sm text-gray-600">
+                  <span>📅 {new Date(appt.date).toLocaleDateString()}</span>
+                  <span>🕐 {appt.time}</span>
+                </div>
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
+      </div>
 
         {/* Actividad Reciente */}
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -149,24 +173,6 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Acciones Rápidas</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <button className="bg-[#0dc0e0] hover:bg-cyan-600 text-white py-2 px-4 rounded-lg font-medium transition">
-            ➕ Nuevo Paciente
-          </button>
-          <button className="border-2 border-[#0dc0e0] text-[#0dc0e0] hover:bg-cyan-50 py-2 px-4 rounded-lg font-medium transition">
-            📅 Nueva Cita
-          </button>
-          <button className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-4 rounded-lg font-medium transition">
-            📊 Ver Reportes
-          </button>
-          <button className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 py-2 px-4 rounded-lg font-medium transition">
-            ⚙️ Configuración
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

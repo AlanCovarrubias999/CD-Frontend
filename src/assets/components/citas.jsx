@@ -164,7 +164,7 @@ function Citas() {
 
       {/* Upcoming Appointments Section */}
       <div className="bg-white rounded-lg shadow-md p-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6">Citas próximas</h3>
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">Próximas citas</h3>
         <div className="space-y-4">
           {appointments.length === 0 ? (
             <p className="text-gray-500">No hay citas registradas.</p>
