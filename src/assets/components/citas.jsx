@@ -180,7 +180,7 @@ function Citas() {
                     <p className="text-sm text-gray-600 mt-1">{appt.notes}</p>
                   </div>
                   <span className="bg-[#0dc0e0] text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    {appt.status || "Pendiente"}
+                    {appt.status}
                   </span>
                 </div>
                 <div className="flex gap-6 text-sm text-gray-600">
