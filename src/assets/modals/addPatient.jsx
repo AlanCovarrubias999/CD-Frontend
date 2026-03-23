@@ -5,7 +5,9 @@ export default function AddPatientModal({
   onClose,
   onSubmit,
   initialData = null,
-}) {
+})
+{
+  
   const [form, setForm] = useState({
     name: "",
     age: "",

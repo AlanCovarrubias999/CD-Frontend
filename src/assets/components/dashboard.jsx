@@ -110,7 +110,7 @@ function Dashboard() {
           textColor="text-green-300"
         />
         <StatCard
-          title="Esta semana"
+          title="Este mes"
           value={stats.appointmentsThisWeek}
           icon="📊"
           bgColor="bg-purple-500"
