@@ -238,7 +238,8 @@ export default function AddPatientModal({
                 Teléfono
               </label>
               <input
-                type="text"
+                maxLength={10}
+                type="number"
                 name="phone_number"
                 value={form.phone_number}
                 onChange={handleChange}
@@ -368,6 +369,8 @@ export default function AddPatientModal({
               <div key={idx} className="flex gap-2 mb-2">
                 <input
                   type="number"
+                  min="1"
+                  max="32"
                   name="tooth_number"
                   value={o.tooth_number}
                   onChange={(e) => handleOdontogramChange(idx, e)}

@@ -6,6 +6,7 @@ import {
   updatePatientRequest,
 } from "../../api/patients";
 import AddPatientModal from "../modals/addPatient";
+import DeletePatientModal from "../modals/deletePatient";
 
 // svg icon components used in action buttons
 const EyeIcon = () => (
@@ -35,6 +36,9 @@ function Pacientes() {
   // controls modal visibility and the patient being edited (null for new)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalPatient, setModalPatient] = useState(null);
+  // delete modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState(null);
 
   const fetchPatients = async () => {
     try {
@@ -76,10 +80,16 @@ function Pacientes() {
     alert(`Paciente:\nNombre: ${patient.name}\nEdad: ${patient.age}\nGénero: ${patient.gender}\nTeléfono: ${patient.phone_number}`);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Estás seguro de eliminar este paciente?")) return;
+  const handleDelete = (id) => {
+    setPatientToDelete(patients.find((p) => p._id === id));
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async (patient) => {
     try {
-      await deletePatientRequest(id);
+      await deletePatientRequest(patient._id);
+      setIsDeleteModalOpen(false);
+      setPatientToDelete(null);
       fetchPatients();
     } catch (err) {
       console.error("Error eliminando paciente", err);
@@ -117,15 +127,25 @@ function Pacientes() {
         initialData={modalPatient}
         onSubmit={handleModalSubmit}
       />
+      {/* Modal para eliminar paciente */}
+      <DeletePatientModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setPatientToDelete(null);
+        }}
+        onDelete={confirmDelete}
+        patient={patientToDelete}
+      />
 
       <div className="bg-white rounded-lg shadow-md p-8">
         <h3 className="text-2xl font-bold text-gray-800 mb-6">
-          Lista de pacientes ({patients.length})
+          Lista de pacientes
         </h3>
         {loading ? (
           <div className="flex justify-center items-center py-8">
             <div className="spinner border-4 border-gray-200 border-t-[#0dc0e0] rounded-full w-8 h-8"></div>
-            <span className="ml-3 text-gray-600">Cargando pacientes...</span>
+            <span className="ml-3 text-gray-600 text-lg font-bold">Cargando pacientes...</span>
           </div>
         ) : patients.length === 0 ? (
           <p className="text-center text-gray-500 py-8">
@@ -175,7 +195,10 @@ function Pacientes() {
                     <td className="px-4 py-4 text-gray-700">{p.phone_number}</td>
                   <td className="px-4 py-4 space-x-2">
                     <button
-                      onClick={() => handleView(p)}
+                      onClick={() => {
+                        setModalPatient(p);
+                        setIsModalOpen(true);
+                      }}
                       className="text-blue-600 bg-cyan-400 hover:cursor-pointer rounded"
                       title="Consultar"
                     >

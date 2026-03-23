@@ -99,7 +99,7 @@ export default function AddAppointmentModal({
               className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:border-[#0dc0e0] transition"
             >
               <option value="Pendiente">Pendiente</option>
-              <option value="Confirmada">Completada</option>
+              <option value="Completada">Completada</option>
               <option value="Cancelada">Cancelada</option>
             </select>
           </div>
