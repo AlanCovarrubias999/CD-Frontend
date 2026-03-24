@@ -8,6 +8,7 @@ export default function AddAppointmentModal({
   patients,
   handleChange,
   handleSubmit,
+  isEditing = false,
 }) {
   const overlayRef = useRef(null);
 
@@ -34,7 +35,7 @@ export default function AddAppointmentModal({
         >
           ✖️
         </button>
-        <h3 className="text-2xl font-bold text-gray-800 mb-6">Nueva cita</h3>
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">{isEditing ? 'Editar cita' : 'Nueva cita'}</h3>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Sección para elegir paciente */}
           <div>
@@ -125,7 +126,7 @@ export default function AddAppointmentModal({
             type="submit"
             className="w-full bg-[#0dc0e0] hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg"
           >
-            ✓ Agendar Cita
+            {isEditing ? '✓ Actualizar Cita' : '✓ Agendar Cita'}
           </button>
         </form>
       </div>

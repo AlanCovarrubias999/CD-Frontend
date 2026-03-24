@@ -12,11 +12,13 @@ function Citas() {
   const [appointments, setAppointments] = useState([]);
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingAppointmentId, setEditingAppointmentId] = useState(null);
   const [form, setForm] = useState({
     patient: "",
     date: "",
     time: "",
     notes: "",
+    status: "Pendiente",
   });
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -74,6 +76,24 @@ function Citas() {
     }
   };
 
+  const updateAppointment = async (appointmentId, appointment) => {
+    try {
+      await updateAppointmentRequest(appointmentId, appointment);
+      fetchAppointments();
+    } catch (e) {
+      console.error("Error actualizando cita", e);
+    }
+  };
+
+  const handleDelete = async (appointmentId) => {
+    try {
+      await deleteAppointmentRequest(appointmentId);
+      fetchAppointments();
+    } catch (e) {
+      console.error("Error eliminando cita", e);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -81,9 +101,14 @@ function Citas() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createAppointment(form);
-    console.log("Agendar cita", form);
-    setForm({ patient: "", date: "", time: "", notes: "" });
+    if (editingAppointmentId) {
+      updateAppointment(editingAppointmentId, form);
+    } else {
+      createAppointment(form);
+    }
+    setForm({ patient: "", date: "", time: "", notes: "", status: "Pendiente" });
+    setEditingAppointmentId(null);
+    setShowAddModal(false);
     fetchAppointments();
   };
   
@@ -134,7 +159,11 @@ function Citas() {
           🔄 Refrescar citas
         </button>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            setForm({ patient: "", date: "", time: "", notes: "", status: "Pendiente" });
+            setEditingAppointmentId(null);
+            setShowAddModal(true);
+          }}
           className="mt-4 ml-2 bg-white text-[#0dc0e0] font-bold py-2 px-4 rounded-lg  shadow-md hover:bg-blue-400 hover:text-white transition duration-200"
         >
           ➕ Agendar cita
@@ -144,7 +173,11 @@ function Citas() {
       {/* Modal para agregar cita */}
       <AddAppointmentModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setForm({ patient: "", date: "", time: "", notes: "", status: "Pendiente" });
+          setEditingAppointmentId(null);
+        }}
         onSubmit={(e) => {
           handleSubmit(e);
           setShowAddModal(false);
@@ -152,10 +185,8 @@ function Citas() {
         form={form}
         patients={patients}
         handleChange={handleChange}
-        handleSubmit={(e) => {
-          handleSubmit(e);
-          setShowAddModal(false);
-        }}
+        handleSubmit={handleSubmit}
+        isEditing={!!editingAppointmentId}
       />
 
       {/* Upcoming Appointments Section */}
@@ -198,15 +229,15 @@ function Citas() {
                 <div className="flex gap-2 justify-between">
                   <button
                     onClick={() => {
-                      console.log("Editar cita", appt);
                       setForm({
                         patient: appt.patient?.name || appt.patient || "",
-                        date: appt.date,
+                        date: appt.date ? appt.date.split('T')[0] : "",
                         time: appt.time,
                         notes: appt.notes,
                         status: appt.status,
                       });
-                      setShowEditModal(true);
+                      setEditingAppointmentId(appt._id);
+                      setShowAddModal(true);
                     }}
                     className="mt-4 bg-blue-400 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-500 transition duration-200 cursor-pointer"
                   >

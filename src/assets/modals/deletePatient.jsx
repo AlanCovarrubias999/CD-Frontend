@@ -1,5 +1,3 @@
-import React from "react";
-
 const DeletePatientModal = ({ isOpen, onClose, onDelete, patient }) => {
   if (!isOpen) return null;
 
