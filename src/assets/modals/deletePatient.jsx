@@ -3,7 +3,7 @@ const DeletePatientModal = ({ isOpen, onClose, onDelete, patient }) => {
 
   return (
     <div className="fixed inset-0 min-h-screen z-50 flex items-center justify-center bg-gray-900/70">
-      <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+      <div className="border-l-5 border-[#0dc0e0] bg-linear-to-r from-cyan-100 to-white rounded-lg shadow-lg p-8 max-w-md w-full">
         <h2 className="text-xl font-bold mb-4 text-red-600">Eliminar paciente</h2>
         <p className="mb-6 text-gray-700">
           ¿Estás seguro que deseas eliminar al paciente

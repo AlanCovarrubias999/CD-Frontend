@@ -7,6 +7,7 @@ import {
   getAppointmentsRequest,
   updateAppointmentRequest,
 } from "../../api/appointments";
+import DeleteAppointmentModal from "../modals/deleteAppointment";
 
 function Citas() {
   const [appointments, setAppointments] = useState([]);
@@ -21,6 +22,8 @@ function Citas() {
     status: "Pendiente",
   });
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deleteAppointmentId, setDeleteAppointmentId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchAppointments = async () => {
     try {
@@ -86,11 +89,19 @@ function Citas() {
   };
 
   const handleDelete = async (appointmentId) => {
+    setDeleteAppointmentId(appointmentId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
     try {
-      await deleteAppointmentRequest(appointmentId);
+      await deleteAppointmentRequest(deleteAppointmentId);
+      setShowDeleteModal(false);
+      setDeleteAppointmentId(null);
       fetchAppointments();
     } catch (e) {
       console.error("Error eliminando cita", e);
+      setError("No se pudo eliminar la cita");
     }
   };
 
@@ -118,18 +129,7 @@ function Citas() {
     Completada: "bg-green-400 text-white border border-green-200", // Verde
     default: "bg-gray-400 text-white border border-gray-200", // Gris por si acaso
   };
-  const statusColors = (status) => {
-    switch (status) {
-      case "Pendiente":
-        return "orange";
-      case "Cancelada":
-        return "red";
-      case "Completada":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
+
 
   const getAppointmentStyle = (status) => {
     switch (status) {
@@ -187,6 +187,16 @@ function Citas() {
         handleChange={handleChange}
         handleSubmit={handleSubmit}
         isEditing={!!editingAppointmentId}
+      />
+
+      {/* Modal para eliminar cita */}
+      <DeleteAppointmentModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteAppointmentId(null);
+        }}
+        onSubmit={confirmDelete}
       />
 
       {/* Upcoming Appointments Section */}

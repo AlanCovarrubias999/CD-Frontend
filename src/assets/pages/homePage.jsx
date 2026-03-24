@@ -76,6 +76,26 @@ function HomePage() {
     }
   ]
 
+  const reportItem = {
+    id: 4,
+    label: "Imprimir Reportes",
+    icon: (
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+        />
+      </svg>
+    ),
+  }
+
   const renderContent = () => {
     switch (menuOpen.id) {
       case 1:
@@ -84,6 +104,8 @@ function HomePage() {
         return <Pacientes />;
       case 3:
         return <Citas />;
+      case 4:
+        return <div className="p-8"><p className="text-gray-600">La sección de reportes aún sigue en desarrollo...</p></div>;
       default:
         return <Dashboard />;
     }
@@ -104,9 +126,9 @@ function HomePage() {
         } bg-[#0dc0e0] transition-all duration-300 flex flex-col shadow-lg`}
       >
         {/* Logo y titulo */}
-        <div className="p-6 flex items-center justify-center border-b border-cyan-400">
-          <div className="bg-white px-6 py-3 rounded-full shadow-md flex items-center">
-            <img src={logo} alt="Logo" className="w-10 h-10" />
+        <div className={`flex items-center justify-center border-b border-cyan-400 transition-all duration-300 ${sidebarOpen ? 'p-6' : 'p-3'}`}>
+          <div className={`bg-white rounded-full shadow-md flex items-center transition-all duration-300 ${sidebarOpen ? 'px-6 py-3' : 'p-2'}`}>
+            <img src={logo} alt="Logo" className={`transition-all duration-300 ${sidebarOpen ? 'w-12 h-12' : 'w-10 h-10'}`} />
             {sidebarOpen && (
               <span className="ml-3 text-black font-bold text-lg hidden sm:inline">
                 AyK
@@ -135,8 +157,21 @@ function HomePage() {
           ))}
         </nav>
 
-        {/* Logout Button */}
-        <div className="p-3 border-t border-cyan-400">
+        {/* Reports and Logout Buttons */}
+        <div className="p-3 border-t border-cyan-400 space-y-2">
+          <button
+            onClick={() => {
+              handleMenuItemClick(reportItem);
+            }}
+            className="w-full flex items-center px-4 py-3 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-200 group"
+          >
+            <span className="text-white group-hover:scale-110 transition-transform">
+              {reportItem.icon}
+            </span>
+            {sidebarOpen && (
+              <span className="ml-3 text-sm font-medium">{reportItem.label}</span>
+            )}
+          </button>
           <button
             onClick={logout}
             className="w-full flex items-center px-4 py-3 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-200 group"

@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { getPatientsRequest } from "../../api/patients";
 import { useAuth } from "../../context/AuthContext";
-import {
-  createAppointmentRequest,
-  deleteAppointmentRequest,
-  getAppointmentsRequest,
-  updateAppointmentRequest,
-} from "../../api/appointments";
+import { getAppointmentsRequest } from "../../api/appointments";
 
 function Dashboard() {
   const [appointments, setAppointments] = useState([]);
