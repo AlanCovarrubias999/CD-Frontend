@@ -106,6 +106,19 @@ function Citas() {
     }
   };
 
+  const getAppointmentStyle = (status) => {
+    switch (status) {
+      case "Pendiente":
+        return "border-l-4 border-orange-400 bg-orange-100 p-4 rounded-lg hover:shadow-md transition";
+      case "Cancelada":
+        return "border-l-4 border-red-400 bg-red-100 p-4 rounded-lg hover:shadow-md transition";
+      case "Completada":
+        return "border-l-4 border-green-400 bg-green-100 p-4 rounded-lg hover:shadow-md transition";
+      default:
+        return "border-l-4 border-gray-400 bg-gray-100 p-4 rounded-lg hover:shadow-md transition";
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header Section */}
@@ -162,7 +175,7 @@ function Citas() {
             appointments.map((appt) => (
               <div
                 key={appt._id}
-                className={`border-l-4 border-[#0dc0e0] bg-linear-to-r from-cyan-100 to-white p-4 rounded-lg hover:shadow-md transition`}
+                className={getAppointmentStyle(appt.status)}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
